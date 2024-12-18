@@ -4,14 +4,16 @@ include 'koneksi.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $email = $_POST['email'];
+    $level = $_POST['level'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT); 
 
-    
+    // Validasi username apakah sudah ada
     $check_username = $conn->query("SELECT * FROM users WHERE username = '$username'");
     if ($check_username->num_rows > 0) {
         echo "Username already taken.";
     } else {
-        $sql = "INSERT INTO users (username, email, password) VALUES ('$username', '$email', '$password')";
+
+        $sql = "INSERT INTO users (username, email, level, password) VALUES ('$username', '$email', '$level', '$password')";
         if ($conn->query($sql)) {
             header('Location: login.php');
             exit;
@@ -21,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 
 <!doctype html>
 <html lang="en" data-bs-theme="auto">
@@ -74,6 +77,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password" required>
           <label for="floatingPassword">Password</label>
         </div>
+        
+        <div class="mb-3">
+            <label for="level" class="form-label">Level</label>
+            <select class="form-control" id="level" name="level" required>
+                <option value="staf">Staf</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+
 
         <div class="form-check text-start my-3">
           <label class="form-check-label" for="flexCheckDefault">

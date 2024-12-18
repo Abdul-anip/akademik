@@ -12,13 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $alamat = $_POST['alamat'];
     $prodi_id = $_POST['prodi_id'];
 
-    $sql = "INSERT INTO mahasiswa (nama, email, nim, gender, hobi, alamat, prodi_id) 
+    $cek_nim = $conn->query("select * from mahasiswa where nim = '$nim'");
+    
+    if($cek_nim->num_rows > 0){
+        echo "<script>alert('NIM sudah digunakan! Silakan masukkan NIM yang berbeda.');</script>";
+    }else{
+            $sql = "INSERT INTO mahasiswa (nama, email, nim, gender, hobi, alamat, prodi_id) 
             VALUES ('$nama', '$email', '$nim', '$gender', '$hobi', '$alamat', '$prodi_id')";
-
-    if ($conn->query($sql)) {
-        header('Location: mahasiswa.php');
-    } else {
-        echo "Error: " . $conn->error;
+       
+        if ($conn->query($sql)) {
+            header('Location: mahasiswa.php');
+        } else {
+                echo "Error: " . $conn->error;
+        }
     }
 }
 

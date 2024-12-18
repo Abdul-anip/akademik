@@ -1,21 +1,25 @@
 <?php
 include 'koneksi.php';
 
+
+
 cekLogin();
 
-$sql = "
-    SELECT mahasiswa.id, mahasiswa.nama, mahasiswa.email, mahasiswa.nim, mahasiswa.gender, 
-           mahasiswa.hobi, mahasiswa.alamat, prodi.nama_prodi
-    from mahasiswa
-    left join prodi on mahasiswa.prodi_id = prodi.id
-               
-";
+$sql = "SELECT mahasiswa.id, mahasiswa.nama, mahasiswa.email, mahasiswa.nim, 
+           mahasiswa.gender, mahasiswa.hobi, mahasiswa.alamat, prodi.nama_prodi
+    FROM mahasiswa
+    LEFT JOIN prodi ON mahasiswa.prodi_id = prodi.id";
+
 
 $result = $conn->query($sql);
 
+if(!$result){
+  die("Eror pada query: " . $conn->error);
+}
 
-
-
+// Cek apakah pengguna sudah login
+$is_logged_in = isset($_SESSION['user_id']);
+$level = isset($_SESSION['level']) ? $_SESSION['level'] : ''; // Ambil level pengguna
 ?>
 
 <!doctype html>
@@ -27,15 +31,18 @@ $result = $conn->query($sql);
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.122.0">
-    <title>Sticky Footer Navbar Template · Bootstrap v5.3</title>
+    <title>Mahasiswa</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/sticky-footer-navbar/">
 
-    
+    <!-- DataTables CSS dan JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
 
-<link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
       .bd-placeholder-img {
@@ -130,20 +137,29 @@ $result = $conn->query($sql);
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav me-auto mb-2 mb-md-0">
-        <li class="nav-item">
+
+      <ul class="navbar-nav me-auto mb-2 mb-md-0">
+          <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="index.php">Home</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="mahasiswa.php">Mahasiswa</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="#" href="prodi.php">Prodi</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="#" href="index.php?page=dosen">Dosen</a>
-          </li>
+
+          <?php if ($is_logged_in): ?>
+            <li class="nav-item">
+              <a class="nav-link" href="mahasiswa.php">Mahasiswa</a>
+            </li>
+            
+            <?php if ($level === 'admin'): ?>
+              <li class="nav-item">
+                <a class="nav-link" href="prodi.php">Prodi</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="dosen.php">Dosen</a>
+              </li>
+            <?php endif; ?>
+
+          <?php endif; ?>
         </ul>
+
         <div class="position-relative">
             <a href="logout.php" class="btn btn-outline-danger position-absolute top-0 end-0">Logout</a><br><br>
         </div>
@@ -159,9 +175,10 @@ $result = $conn->query($sql);
     <h1 class="text-center">Selamat Datang, <?php echo htmlspecialchars($_SESSION['username']); ?></h1>
         <h2>Data Mahasiswa</h2>
       
-        <a href="create.php" class="btn btn-primary mb-3">Tambah Data</a> 
+        <a href="create-mahasiswa.php" class="btn btn-primary mb-3">Tambah Data</a> 
         
-        <table class="table table-striped table-bordered" >
+        <table id="mahasiswa-tabel" class="table table-striped table-bordered" >
+          <thead>
             <tr>
                 <th>NO</th>
                 <th>Nama</th>
@@ -173,7 +190,8 @@ $result = $conn->query($sql);
                 <th>Program Study</th>
                 <th>Aksi</th>
             </tr>
-            
+          </thead>
+          <tbody>
             <?php
             $no = 1;
             while ($data = $result->fetch_assoc()): ?>
@@ -187,17 +205,28 @@ $result = $conn->query($sql);
                 <td><?php echo nl2br(htmlspecialchars($data['alamat'])); ?></td>
                 <td><?php echo htmlspecialchars($data['nama_prodi']); ?></td>
                 <td>
-                    <a href="edit.php?id=<?php echo $data['id']; ?>" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="edit-mahasiswa.php?id=<?php echo $data['id']; ?>" class="btn btn-primary btn-sm">Edit</a>
                     <a href="delete.php?id=<?php echo $data['id']; ?>&table=mahasiswa" onclick="return confirm('Yakin ingin menghapus data ini?')" class="btn btn-danger btn-sm">Hapus</a>
-
                 </td>
             </tr>
             <?php endwhile; ?>
+          </tbody>
         </table>
   </div>
 </main>
+
+<script>
+$('#mahasiswa-tabel').DataTable({
+    "language": {
+        "search": "Cari data Mahasiswa:",
+        "zeroRecords": "Data tidak ditemukan", 
+    }
+});
+
+</script>
 
 <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
 
     </body>
 </html>
+ 

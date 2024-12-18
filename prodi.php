@@ -1,6 +1,8 @@
 <?php
 include 'koneksi.php';
 
+cekRole(['admin']);//hanya admin
+
 cekLogin();
 
 $result = $conn->query("SELECT * FROM prodi");
@@ -16,15 +18,21 @@ $result = $conn->query("SELECT * FROM prodi");
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.122.0">
-    <title>Sticky Footer Navbar Template · Bootstrap v5.3</title>
+    <title>Prodi</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/sticky-footer-navbar/">
-
-    
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
 
     <style>
       .bd-placeholder-img {
@@ -130,7 +138,7 @@ $result = $conn->query("SELECT * FROM prodi");
             <a class="nav-link active" aria-current="#" href="prodi.php">Prodi</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="#" href="index.php?page=dosen">Dosen</a>
+            <a class="nav-link active" aria-current="#" href="dosen.php">Dosen</a>
           </li>
         </ul>
         <div class="position-relative">
@@ -150,7 +158,8 @@ $result = $conn->query("SELECT * FROM prodi");
       
         <a href="create-prodi.php" class="btn btn-primary mb-3">Tambah Data</a> 
         
-        <table class="table table-striped table-bordered">
+        <table id="prodi-tabel" class="table table-striped table-bordered">
+          <thead>
             <tr>
                 <th>NO</th>
                 <th>Nama Prodi</th>
@@ -158,6 +167,8 @@ $result = $conn->query("SELECT * FROM prodi");
                 <th>Keterangan</th>
                 <th>Aksi</th>
             </tr>
+          </thead>
+          <tbody>
             <?php
             $no = 1;
             while ($data = $result->fetch_assoc()): ?>
@@ -172,9 +183,22 @@ $result = $conn->query("SELECT * FROM prodi");
                 </td>
             </tr>
             <?php endwhile; ?>
+          </tbody>    
         </table>
   </div>
 </main>
+
+<script>
+$(document).ready(function () {
+    // Inisialisasi DataTables pada tabel dengan ID 'example'
+    $('#prodi-tabel').DataTable({
+        "language": {
+            "search": "Cari Data:", // Mengubah label pencarian
+            "zeroRecords": "Data tidak ditemukan", // Pesan jika data tidak ditemukan
+        }
+    });
+});
+</script>
 
 <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
 
